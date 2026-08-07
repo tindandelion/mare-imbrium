@@ -9,10 +9,12 @@ use mare_imbrium::meshes::sphere;
 use mare_imbrium::shaders::PhongShader;
 use mare_imbrium::{
     ANIMATED_SCENE_FRAME_COUNT, ANIMATED_SCENE_FRAME_SPACING_MS, Camera, FrameBuffer, Light,
-    Material, Rgb, SCENE_BACKGROUND, SCENE_HEIGHT, SCENE_WIDTH, Shape, WebpEncoder,
+    Material, Rgb, SCENE_HEIGHT, SCENE_WIDTH, Shape, WebpEncoder,
 };
 
 use crate::frame_writer::PngFrameWriter;
+
+const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x222222);
 
 const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.0, -1.0);
 const SUN_DIRECTION: Vec3 = Vec3::new(0.0, 2.0, -0.5);

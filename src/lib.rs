@@ -38,7 +38,7 @@ pub const ANIMATED_SCENE_FRAME_COUNT: u32 = 360;
 pub const ANIMATED_SCENE_FRAME_SPACING_MS: i32 = 20;
 
 /// Geometry-browser scene background (**`0x444444`**).
-pub const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x222222);
+pub const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x444444);
 
 /// Default export-bin surface material.
 ///

@@ -6,7 +6,7 @@ use glam::Vec3;
 
 use mare_imbrium::{
     Camera, FrameBuffer, Light, SCENE_BACKGROUND, Shape, WebpEncoder, default_material,
-    lighting::DistanceFalloff, meshes::torus,
+    lighting::DistanceFalloff, meshes::torus, shaders::PhongShader,
 };
 
 use crate::kitty_terminal::KittyTerminal;
@@ -42,8 +42,13 @@ fn render_scene(width: u32, height: u32) -> FrameBuffer {
         Light::point(Vec3::new(-1.0, -2.0, 1.0), 4.0, light_falloff),
     ];
 
-    let torus = Shape::new(torus(48, 32), default_material());
-    torus.render_phong(&mut framebuffer, &camera, &lights);
+    let torus = Shape::new(torus(48, 32));
+    let shader = PhongShader {
+        material: &default_material(),
+        lights: &lights,
+        toward_eye: -camera.direction(),
+    };
+    torus.render(&mut framebuffer, &camera, &shader);
 
     framebuffer
 }

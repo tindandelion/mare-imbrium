@@ -2,7 +2,7 @@
 name = "mare-imbrium"
 version = "0.1.0"
 edition = "2024"
-default-run = "animated-scene"
+default-run = "moon-globe"
 
 [dependencies]
 approx = "0.5"

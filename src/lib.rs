@@ -22,7 +22,6 @@ pub use webp_encoder::WebpEncoder;
 use crate::framebuffer::{Interpolatable, ShadedCorner, ShadedTriangle};
 use crate::geometry::{Mesh, UnitVec3};
 use crate::lighting::{Color, DistanceFalloff};
-use crate::shaders::{GouraudShader, PhongShader};
 
 /// Raster width in pixels (golden stills / integration tests must agree).
 pub const SCENE_WIDTH: u32 = 800;
@@ -39,7 +38,7 @@ pub const ANIMATED_SCENE_FRAME_COUNT: u32 = 360;
 pub const ANIMATED_SCENE_FRAME_SPACING_MS: i32 = 20;
 
 /// Geometry-browser scene background (**`0x444444`**).
-pub const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x444444);
+pub const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x222222);
 
 /// Default export-bin surface material.
 ///
@@ -83,7 +82,7 @@ impl Material {
     }
 }
 
-trait Shader {
+pub trait Shader {
     type VertexData: Interpolatable;
 
     fn shade_vertex(&self, position: Vec3, normal: UnitVec3) -> Self::VertexData;
@@ -94,33 +93,14 @@ trait Shader {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Shape {
     pub mesh: Mesh,
-    pub material: Material,
 }
 
 impl Shape {
-    pub fn new(mesh: Mesh, material: Material) -> Self {
-        Self { mesh, material }
+    pub fn new(mesh: Mesh) -> Self {
+        Self { mesh }
     }
 
-    pub fn render_gouraud(&self, fb: &mut FrameBuffer, camera: &Camera, lights: &[Light]) {
-        let shader = GouraudShader {
-            material: &self.material,
-            lights,
-            toward_eye: -camera.direction(),
-        };
-        self._render(fb, camera, &shader);
-    }
-
-    pub fn render_phong(&self, fb: &mut FrameBuffer, camera: &Camera, lights: &[Light]) {
-        let shader = PhongShader {
-            material: &self.material,
-            lights,
-            toward_eye: -camera.direction(),
-        };
-        self._render(fb, camera, &shader);
-    }
-
-    fn _render<S: Shader>(&self, fb: &mut FrameBuffer, camera: &Camera, shader: &S) {
+    pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, camera: &Camera, shader: &S) {
         let forward = camera.direction();
         for triangle in self.mesh.visible_triangles(forward) {
             let corners = array::from_fn(|i| ShadedCorner {

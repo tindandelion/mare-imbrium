@@ -41,7 +41,7 @@ struct LunarSurfaceShader {
 }
 
 impl LunarSurfaceShader {
-    const COLOR: Color = Color(0.75, 0.75, 0.75);
+    const COLOR: Color = Color(0.5, 0.5, 0.5);
 }
 
 impl Shader for LunarSurfaceShader {

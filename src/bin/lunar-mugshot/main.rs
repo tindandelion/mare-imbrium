@@ -4,14 +4,11 @@ use std::thread;
 
 use glam::Vec3;
 
-use mare_imbrium::{
-    Camera, FrameBuffer, Light, SCENE_BACKGROUND, Shape, WebpEncoder, default_material,
-    lighting::DistanceFalloff, meshes::torus, shaders::PhongShader,
-};
+use mare_imbrium::{Camera, FrameBuffer, WebpEncoder, main_scene::Scene};
 
 use crate::kitty_terminal::KittyTerminal;
 
-const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.5, -1.0);
+const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.0, -1.0);
 const OUT_PATH: &str = "still-scene.webp";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -29,27 +26,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn render_scene(width: u32, height: u32) -> FrameBuffer {
     let mut framebuffer = FrameBuffer::new(width, height);
-    framebuffer.clear(SCENE_BACKGROUND);
     let camera = Camera::for_viewport(width, height).move_to(CAMERA_POS);
-    let light_falloff = DistanceFalloff {
-        constant: 0.5,
-        linear: 0.0,
-        quadratic: 1.0,
-    };
-    let lights = [
-        Light::directional(Vec3::new(0.0, 2.0, 0.0).into(), 0.5),
-        Light::point(Vec3::new(1.0, 2.0, -1.0), 4.0, light_falloff),
-        Light::point(Vec3::new(-1.0, -2.0, 1.0), 4.0, light_falloff),
-    ];
+    let scene = Scene::new(Vec3::new(0.5, 0.5, -1.0).into(), 5);
 
-    let torus = Shape::new(torus(48, 32));
-    let shader = PhongShader {
-        material: &default_material(),
-        lights: &lights,
-        toward_eye: -camera.direction(),
-    };
-    torus.render(&mut framebuffer, &camera, &shader);
-
+    scene.render(&mut framebuffer, &camera);
     framebuffer
 }
 

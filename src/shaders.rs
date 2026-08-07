@@ -1,5 +1,3 @@
-use glam::Vec3;
-
 use crate::{
     Light, Material, Shader,
     geometry::{SurfacePoint, UnitVec3},
@@ -15,8 +13,8 @@ pub struct PhongShader<'a> {
 impl<'a> Shader for PhongShader<'a> {
     type VertexData = SurfacePoint;
 
-    fn shade_vertex(&self, position: Vec3, normal: UnitVec3) -> Self::VertexData {
-        SurfacePoint::new(position, normal)
+    fn shade_vertex(&self, vertex: SurfacePoint) -> Self::VertexData {
+        vertex
     }
 
     fn shade_pixel(&self, surface_point: SurfacePoint) -> Color {
@@ -34,10 +32,8 @@ pub struct GouraudShader<'a> {
 impl<'a> Shader for GouraudShader<'a> {
     type VertexData = Color;
 
-    fn shade_vertex(&self, position: Vec3, normal: UnitVec3) -> Self::VertexData {
-        let surface_point = SurfacePoint::new(position, normal);
-        self.material
-            .shade(self.lights, surface_point, self.toward_eye)
+    fn shade_vertex(&self, vertex: SurfacePoint) -> Self::VertexData {
+        self.material.shade(self.lights, vertex, self.toward_eye)
     }
 
     fn shade_pixel(&self, color: Color) -> Color {

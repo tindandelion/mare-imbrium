@@ -1,26 +1,21 @@
 mod frame_writer;
 
+use crate::frame_writer::PngFrameWriter;
+use glam::{Mat4, Vec3};
+use mare_imbrium::{Camera, FrameBuffer, WebpEncoder, main_scene::Scene};
 use std::f32::consts::TAU;
 use std::path::Path;
-
-use glam::{Mat4, Vec3};
-use mare_imbrium::meshes::sphere;
-
-use mare_imbrium::shaders::PhongShader;
-use mare_imbrium::{
-    ANIMATED_SCENE_FRAME_COUNT, ANIMATED_SCENE_FRAME_SPACING_MS, Camera, FrameBuffer, Light,
-    Material, Rgb, SCENE_HEIGHT, SCENE_WIDTH, Shape, WebpEncoder,
-};
-
-use crate::frame_writer::PngFrameWriter;
-
-const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x111111);
 
 const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.0, -1.0);
 const SUN_DIRECTION: Vec3 = Vec3::new(1.0, 1.0, -0.5);
 
 const GLOBE_TESSELATION: usize = 5;
 const GLOBE_SCALE: f32 = 0.9;
+
+const SCENE_WIDTH: u32 = 800;
+const SCENE_HEIGHT: u32 = 600;
+pub const ANIMATED_SCENE_FRAME_COUNT: u32 = 360;
+pub const ANIMATED_SCENE_FRAME_SPACING_MS: i32 = 20;
 
 const BASE_OUT_DIR: &str = concat!("target/", env!("CARGO_BIN_NAME"));
 
@@ -44,26 +39,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     png_writer.clear()?;
     let mut framebuffer = FrameBuffer::new(SCENE_WIDTH, SCENE_HEIGHT);
     let camera = Camera::for_viewport(SCENE_WIDTH, SCENE_HEIGHT).move_to(CAMERA_POS);
-    let sun = [Light::directional(SUN_DIRECTION.into(), 1.0)];
-    let base_mesh = sphere(GLOBE_TESSELATION);
-    let material = Material::from_rgb(Rgb::BLACK, Rgb::from_hex(0xBEBEB8), Rgb::BLACK, None);
+
+    let mut scene = Scene::new(SUN_DIRECTION.into(), GLOBE_TESSELATION);
 
     let frame_production_start = std::time::Instant::now();
     let lap_frames = ANIMATED_SCENE_FRAME_COUNT.max(1) as f32;
 
-    let shader = PhongShader {
-        material: &material,
-        lights: &sun,
-        toward_eye: -camera.direction(),
-    };
-
     for frame_index in 0..ANIMATED_SCENE_FRAME_COUNT {
-        framebuffer.clear(SCENE_BACKGROUND);
-
         let t = frame_index as f32 / lap_frames * TAU;
-        let shape = Shape::new(base_mesh.transform(model_matrix_tumble(t)));
+        scene.transform = model_matrix_tumble(t);
+        scene.render(&mut framebuffer, &camera);
 
-        shape.render(&mut framebuffer, &camera, &shader);
         png_writer.write_frame(frame_index, &framebuffer)?;
         webp_encoder.add_frame(&framebuffer)?;
     }

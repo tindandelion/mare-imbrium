@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+frames_dir="${root}/target/animated-scene"
+output="${root}/target/scene.webm"
+framerate=50
+# Safari plays VP9 Profile 0 with 4:2:0 only (not yuv444p / lossless VP9 Profile 1).
+pix_fmt="${FFMPEG_PIX_FMT:-yuv420p}"
+crf="${FFMPEG_CRF:-4}"
+cpu_used="${FFMPEG_CPU_USED:-0}"
+deadline="${FFMPEG_DEADLINE:-best}"
+
+if [[ ! -d "${frames_dir}" ]]; then
+  echo "error: missing PNG frames directory: ${frames_dir}" >&2
+  echo "Run: cargo run --release --bin animated-scene" >&2
+  exit 1
+fi
+
+shopt -s nullglob
+png_frames=("${frames_dir}"/*.png)
+if (( ${#png_frames[@]} == 0 )); then
+  echo "error: no PNG frames in ${frames_dir}" >&2
+  echo "Run: cargo run --release --bin animated-scene" >&2
+  exit 1
+fi
+
+cd "${root}"
+
+ffmpeg -y \
+  -framerate "${framerate}" \
+  -start_number 0 \
+  -i "${frames_dir}/%06d.png" \
+  -c:v libvpx-vp9 \
+  -pix_fmt "${pix_fmt}" \
+  -crf "${crf}" \
+  -b:v 0 \
+  -deadline "${deadline}" \
+  -row-mt 1 \
+  -cpu-used "${cpu_used}" \
+  "${output}"
+
+echo "Wrote ${output} (vp9 profile 0, pix_fmt=${pix_fmt}, crf=${crf}, cpu-used=${cpu_used}, deadline=${deadline})"

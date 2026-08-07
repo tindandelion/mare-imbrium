@@ -2,7 +2,7 @@
 name = "mare-imbrium"
 version = "0.1.0"
 edition = "2024"
-default-run = "moon-globe"
+default-run = "lunar-globe"
 
 [dependencies]
 approx = "0.5"

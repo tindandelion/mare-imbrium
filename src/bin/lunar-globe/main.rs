@@ -14,25 +14,27 @@ use mare_imbrium::{
 
 use crate::frame_writer::PngFrameWriter;
 
-const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x222222);
+const SCENE_BACKGROUND: Rgb = Rgb::from_hex(0x111111);
 
 const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.0, -1.0);
-const SUN_DIRECTION: Vec3 = Vec3::new(0.0, 2.0, -0.5);
+const SUN_DIRECTION: Vec3 = Vec3::new(1.0, 1.0, -0.5);
 
 const GLOBE_TESSELATION: usize = 5;
 const GLOBE_SCALE: f32 = 0.9;
 
-const WEBP_OUT_PATH: &str = "target/scene.webp";
-const PNG_OUT_DIR: &str = "target/animated-scene";
+const BASE_OUT_DIR: &str = concat!("target/", env!("CARGO_BIN_NAME"));
 
-/// Uniform scale plus world-fixed **`R_z R_y R_x`** at angle **`t`** (radians).
 fn model_matrix_tumble(t: f32) -> Mat4 {
-    let rotation = Mat4::from_rotation_z(t) * Mat4::from_rotation_y(t) * Mat4::from_rotation_x(t);
+    let rotation = Mat4::from_rotation_y(t);
     Mat4::from_scale(Vec3::splat(GLOBE_SCALE)) * rotation
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let png_writer = PngFrameWriter::new(PNG_OUT_DIR, SCENE_WIDTH, SCENE_HEIGHT);
+    let png_writer = PngFrameWriter::new(
+        Path::new(BASE_OUT_DIR).join("frames"),
+        SCENE_WIDTH,
+        SCENE_HEIGHT,
+    );
     let mut webp_encoder = WebpEncoder::with_frame_spacing(
         SCENE_WIDTH,
         SCENE_HEIGHT,
@@ -69,7 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let frame_production_secs = frame_production_elapsed.as_secs_f64().max(1e-12);
     let frame_production_fps = ANIMATED_SCENE_FRAME_COUNT as f64 / frame_production_secs;
 
-    webp_encoder.write(Path::new(WEBP_OUT_PATH))?;
+    webp_encoder.write(Path::new(BASE_OUT_DIR).join("moon-globe.webp"))?;
 
     println!(
         "Frame production: {:.2} fps ({ANIMATED_SCENE_FRAME_COUNT} frames in {:?})",

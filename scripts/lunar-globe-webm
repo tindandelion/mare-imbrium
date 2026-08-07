@@ -2,8 +2,8 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-frames_dir="${root}/target/animated-scene"
-output="${root}/target/scene.webm"
+frames_dir="${root}/target/lunar-globe/frames"
+output="${root}/target/lunar-globe/lunar-globe.webm"
 framerate=50
 # Safari plays VP9 Profile 0 with 4:2:0 only (not yuv444p / lossless VP9 Profile 1).
 pix_fmt="${FFMPEG_PIX_FMT:-yuv420p}"
@@ -13,7 +13,7 @@ deadline="${FFMPEG_DEADLINE:-best}"
 
 if [[ ! -d "${frames_dir}" ]]; then
   echo "error: missing PNG frames directory: ${frames_dir}" >&2
-  echo "Run: cargo run --release --bin animated-scene" >&2
+  echo "Run: cargo run --release --bin lunar-globe" >&2
   exit 1
 fi
 
@@ -21,7 +21,7 @@ shopt -s nullglob
 png_frames=("${frames_dir}"/*.png)
 if (( ${#png_frames[@]} == 0 )); then
   echo "error: no PNG frames in ${frames_dir}" >&2
-  echo "Run: cargo run --release --bin animated-scene" >&2
+  echo "Run: cargo run --release --bin lunar-globe" >&2
   exit 1
 fi
 

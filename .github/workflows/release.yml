@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "*.*.*"
+      - '*.*.*'
 
 permissions:
   contents: write
@@ -23,15 +23,15 @@ jobs:
         run: cargo test --release
 
       - name: Render animated scene
-        run: cargo run --release --bin animated-scene
+        run: cargo run --release --bin lunar-globe
 
       - name: Render animated scene WebM
-        run: ./scripts/animated-scene-webm
+        run: ./scripts/lunar-globe-webm
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            target/scene.webp
-            target/scene.webm
+            target/lunar-globe/lunar-globe.webp
+            target/lunar-globe/lunar-globe.webm
           generate_release_notes: true

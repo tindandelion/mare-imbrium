@@ -1,5 +1,4 @@
-use std::fs;
-use std::path::Path;
+use std::{fs, path::PathBuf};
 
 use webp_animation::{ColorMode, Encoder, EncoderOptions, EncodingConfig, EncodingType};
 
@@ -54,9 +53,9 @@ impl WebpEncoder {
         Ok(())
     }
 
-    pub fn write(self, out_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn write(self, out_path: impl Into<PathBuf>) -> Result<(), Box<dyn std::error::Error>> {
         let webp = self.encoder.finalize(self.next_timestamp_ms)?;
-        fs::write(out_path, &webp)?;
+        fs::write(out_path.into(), &webp)?;
         Ok(())
     }
 }

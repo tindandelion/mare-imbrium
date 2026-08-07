@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let frame_production_secs = frame_production_elapsed.as_secs_f64().max(1e-12);
     let frame_production_fps = ANIMATED_SCENE_FRAME_COUNT as f64 / frame_production_secs;
 
-    webp_encoder.write(Path::new(BASE_OUT_DIR).join("moon-globe.webp"))?;
+    webp_encoder.write(Path::new(BASE_OUT_DIR).join("lunar-globe.webp"))?;
 
     println!(
         "Frame production: {:.2} fps ({ANIMATED_SCENE_FRAME_COUNT} frames in {:?})",

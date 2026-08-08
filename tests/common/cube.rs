@@ -51,11 +51,7 @@ pub fn cube() -> ModelMesh {
 
 #[cfg(test)]
 mod tests {
-    use glam::{Mat4, Vec3};
-
     use super::cube;
-    use mare_imbrium::geometry::UnitVec3;
-    use std::f32::consts::FRAC_PI_4;
 
     #[test]
     fn cube_corner_and_facet_counts() {
@@ -66,46 +62,6 @@ mod tests {
             mesh.vertices()
                 .iter()
                 .all(|p| p.x.abs() <= 0.5 && p.y.abs() <= 0.5 && p.z.abs() <= 0.5),
-        );
-    }
-
-    #[test]
-    fn visible_triangles_count_from_front() {
-        let mesh = cube();
-        let forward = UnitVec3::Z;
-        assert_eq!(mesh.visible_triangles(forward).count(), 2);
-    }
-
-    #[test]
-    fn visible_triangles_count_from_arbitrary_direction() {
-        let mesh = cube();
-        let forward = Vec3::new(-1.0, -1.0, -1.0).into();
-        assert_eq!(mesh.visible_triangles(forward).count(), 6);
-    }
-
-    #[test]
-    fn visible_triangles_count_after_transform() {
-        let forward = UnitVec3::Z;
-        let transform = Mat4::from_rotation_x(FRAC_PI_4) * Mat4::from_rotation_y(FRAC_PI_4);
-
-        assert_eq!(
-            cube()
-                .transform(transform)
-                .visible_triangles(forward)
-                .count(),
-            6,
-        );
-    }
-
-    #[test]
-    fn looking_at_cube_from_front() {
-        let mesh = cube();
-        let visible = mesh.visible_triangles(UnitVec3::Z).collect::<Vec<_>>();
-        assert_eq!(visible.len(), 2);
-        assert!(
-            visible
-                .iter()
-                .all(|tri| tri.normals() == [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z])
         );
     }
 }

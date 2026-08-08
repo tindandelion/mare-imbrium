@@ -13,7 +13,7 @@ const GLOBE_TESSELATION: usize = 5;
 const GLOBE_SCALE: f32 = 0.9;
 
 const SCENE_WIDTH: u32 = 800;
-const SCENE_HEIGHT: u32 = 600;
+const SCENE_HEIGHT: u32 = 800;
 pub const ANIMATED_SCENE_FRAME_COUNT: u32 = 360;
 pub const ANIMATED_SCENE_FRAME_SPACING_MS: i32 = 20;
 

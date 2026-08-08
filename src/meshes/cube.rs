@@ -105,7 +105,7 @@ mod tests {
         assert!(
             visible
                 .iter()
-                .all(|tri| tri.normals == [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z])
+                .all(|tri| tri.normals() == [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z])
         );
     }
 }

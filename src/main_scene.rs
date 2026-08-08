@@ -32,7 +32,7 @@ impl Scene {
         };
 
         let shape = Shape::new(self.globe_mesh.transform(self.transform));
-        shape.render(framebuffer, &camera, &shader);
+        camera.render(framebuffer, &shape, &shader);
     }
 }
 

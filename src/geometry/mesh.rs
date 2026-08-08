@@ -4,14 +4,21 @@
 
 use glam::{Mat4, Vec3};
 
+use crate::geometry::SurfacePoint;
+
 use super::facet::{Facet, NormalTransform};
 use super::unit_vec3::UnitVec3;
 
 /// One strictly front-filled **triangle** in world space: **`corners`** plus per-vertex **[`UnitVec3`]** normals for shading.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Triangle {
-    pub corners: [Vec3; 3],
-    pub normals: [UnitVec3; 3],
+    pub vertices: [SurfacePoint; 3],
+}
+
+impl Triangle {
+    pub fn normals(&self) -> [UnitVec3; 3] {
+        self.vertices.map(|v| v.normal())
+    }
 }
 
 /// Generic mesh: **`Facet::verts`** index into vertex positions from **[`vertices`](Mesh::vertices)**.
@@ -67,10 +74,10 @@ impl Mesh {
             .filter(move |f| f.is_front_facing(view_direction))
             .map(|facet| {
                 let corners = facet.resolve_vertices(&self.vertices);
-                Triangle {
-                    corners,
-                    normals: *facet.vertex_normals(),
-                }
+                let normals = facet.vertex_normals();
+                let vertices = std::array::from_fn(|i| SurfacePoint::new(corners[i], normals[i]));
+
+                Triangle { vertices }
             })
     }
 }
@@ -111,7 +118,7 @@ mod tests {
         assert!(
             visible
                 .iter()
-                .all(|tri| tri.normals == [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z])
+                .all(|tri| tri.normals() == [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z])
         );
     }
 

@@ -42,21 +42,24 @@ pub trait Shader {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Shape {
-    pub mesh: Mesh,
+    pub model: Mesh,
 }
 
 impl Shape {
-    pub fn new(mesh: Mesh) -> Self {
-        Self { mesh }
+    pub fn new(model: Mesh) -> Self {
+        Self { model }
     }
+}
 
-    pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, camera: &Camera, shader: &S) {
-        let forward = camera.direction();
-        for triangle in self.mesh.visible_triangles(forward) {
-            let corners = array::from_fn(|i| ShadedCorner {
-                pixel: camera.transform(triangle.corners[i]),
-                value: shader
-                    .shade_vertex(SurfacePoint::new(triangle.corners[i], triangle.normals[i])),
+impl Camera {
+    pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, shape: &Shape, shader: &S) {
+        for triangle in shape.model.visible_triangles(self.direction()) {
+            let corners = array::from_fn(|i| {
+                let vertex = triangle.vertices[i];
+                ShadedCorner {
+                    pixel: self.transform(vertex.position()),
+                    value: shader.shade_vertex(vertex),
+                }
             });
             ShadedTriangle::new(corners)
                 .draw(fb, |surface_pt| Rgb::from(shader.shade_pixel(surface_pt)));

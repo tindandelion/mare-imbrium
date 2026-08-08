@@ -70,5 +70,5 @@ fn render_shape(shape: &Shape, fb: &mut FrameBuffer, camera: &Camera, material: 
         toward_eye: -camera.direction(),
     };
 
-    shape.render(fb, camera, &shader);
+    camera.render(fb, shape, &shader);
 }

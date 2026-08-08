@@ -1,11 +1,11 @@
 # Site settings — Jekyll + Minima, published via GitHub Pages (gh-pages branch).
 
-title: 3D Rasterizer in Rust
+title: "Mare Imbrium: Rendering the Moon"
 email: s.moshnikov@gmail.com
 description: >-
-  A personal learning project: a 3D software rasterizer in Rust (CPU first, optional wgpu later).
-  This diary covers progress, experiments, and what I learn along the way.
-baseurl: "/rust-3d-rasterizer"
+  Yet another learning project in 3D graphics. This time, we're going to render the 
+  Moon using the data from NASA's CGI Moon Kit and 3D rendering techniques.
+baseurl: "/mare-imbrium"
 url: "https://tindandelion.com"
 github_username: tindandelion
 

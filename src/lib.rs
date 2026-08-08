@@ -40,7 +40,6 @@ pub trait Shader {
     fn shade_pixel(&self, data: Self::VertexData) -> Color;
 }
 
-/// A posed **[`Mesh`]** plus surface **[`Material`]** for filled rendering.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Shape {
     pub mesh: Mesh,

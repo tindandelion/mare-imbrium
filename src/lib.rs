@@ -41,8 +41,8 @@ pub trait Shader {
 }
 
 impl Camera {
-    pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, shape: &PosedMesh, shader: &S) {
-        for triangle in shape.visible_triangles(self.direction()) {
+    pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, mesh: &PosedMesh, shader: &S) {
+        for triangle in mesh.visible_triangles(self.direction()) {
             let corners = array::from_fn(|i| {
                 let vertex = triangle.vertices[i];
                 ShadedCorner {

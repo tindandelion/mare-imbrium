@@ -54,6 +54,20 @@ impl ModelMesh {
     }
 
     /// Front-facing facets as world-space **[`Triangle`]**s (corners + per-vertex normals).
+    pub fn triangles(&self) -> impl Iterator<Item = Triangle> + '_ {
+        self.facets.iter().map(|facet| {
+            let corners = facet.resolve_vertices(&self.vertices);
+            let normals = facet.vertex_normals();
+            let vertices = std::array::from_fn(|i| SurfacePoint::new(corners[i], normals[i]));
+
+            Triangle {
+                vertices,
+                facet_normal: facet.facet_normal(),
+            }
+        })
+    }
+
+    /// Front-facing facets as world-space **[`Triangle`]**s (corners + per-vertex normals).
     pub fn visible_triangles(
         &self,
         view_direction: UnitVec3,

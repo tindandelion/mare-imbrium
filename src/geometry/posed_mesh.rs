@@ -16,10 +16,19 @@ impl PosedMesh {
         &self,
         view_direction: UnitVec3,
     ) -> impl Iterator<Item = Triangle> + '_ {
+        self.visible_triangles_2(view_direction)
+            .map(|(_, posed)| posed)
+    }
+
+    pub fn visible_triangles_2(
+        &self,
+        view_direction: UnitVec3,
+    ) -> impl Iterator<Item = (Triangle, Triangle)> + '_ {
         let posed_mesh = self.model.transform(self.pose);
-        posed_mesh
+        self.model
             .triangles()
-            .filter(|triangle| triangle.is_front_facing(view_direction))
+            .zip(posed_mesh.triangles())
+            .filter(|(_, posed)| posed.is_front_facing(view_direction))
             .collect::<Vec<_>>()
             .into_iter()
     }
@@ -29,6 +38,7 @@ impl PosedMesh {
 mod tests {
     use std::f32::consts;
 
+    use approx::assert_relative_eq;
     use glam::Vec3;
 
     use crate::geometry::Facet;
@@ -38,20 +48,48 @@ mod tests {
     #[test]
     fn from_pos_z_both_facets_visible_with_neg_z_normals() {
         let mesh = flat_square_xy();
-        let visible = mesh.visible_triangles(UnitVec3::Z).collect::<Vec<_>>();
+        let visible: Vec<(Triangle, Triangle)> = mesh.visible_triangles_2(UnitVec3::Z).collect();
 
         assert_eq!(visible.len(), 2);
-        assert!(
-            visible
-                .iter()
-                .all(|tri| tri.normals() == [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z])
-        );
+        for (model, posed) in visible {
+            assert_eq!(
+                [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z],
+                posed.normals()
+            );
+            assert_eq!(
+                [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z],
+                model.normals()
+            );
+        }
+    }
+
+    #[test]
+    fn preserves_model_triangles_when_posing() {
+        let mut mesh = flat_square_xy();
+
+        mesh.pose = Mat4::from_rotation_y(consts::PI);
+        let visible: Vec<(Triangle, Triangle)> =
+            mesh.visible_triangles_2(UnitVec3::NEG_Z).collect();
+
+        assert_eq!(visible.len(), 2);
+
+        for (model, posed) in visible {
+            for n in posed.normals() {
+                assert_relative_eq!(UnitVec3::Z, n);
+            }
+
+            for n in model.normals() {
+                assert_relative_eq!(UnitVec3::NEG_Z, n);
+            }
+        }
     }
 
     #[test]
     fn from_neg_z_no_facets_visible() {
         assert_eq!(
-            flat_square_xy().visible_triangles(UnitVec3::NEG_Z).count(),
+            flat_square_xy()
+                .visible_triangles_2(UnitVec3::NEG_Z)
+                .count(),
             0
         );
     }
@@ -59,8 +97,8 @@ mod tests {
     #[test]
     fn perpendicular_view_is_grazing_neither_triangle_front() {
         let mesh = flat_square_xy();
-        assert_eq!(mesh.visible_triangles(UnitVec3::X).count(), 0);
-        assert_eq!(mesh.visible_triangles(UnitVec3::Y).count(), 0);
+        assert_eq!(mesh.visible_triangles_2(UnitVec3::X).count(), 0);
+        assert_eq!(mesh.visible_triangles_2(UnitVec3::Y).count(), 0);
     }
 
     #[test]
@@ -68,8 +106,8 @@ mod tests {
         let mut mesh = flat_square_xy();
         mesh.pose = Mat4::from_rotation_y(consts::PI);
 
-        assert_eq!(mesh.visible_triangles(UnitVec3::Z).count(), 0);
-        assert_eq!(mesh.visible_triangles(UnitVec3::NEG_Z).count(), 2);
+        assert_eq!(mesh.visible_triangles_2(UnitVec3::Z).count(), 0);
+        assert_eq!(mesh.visible_triangles_2(UnitVec3::NEG_Z).count(), 2);
     }
 
     /// **`z = 0`**, **`[-½, ½]²`** in **XY**. Two triangles, outward **[`UnitVec3::NEG_Z`]** —

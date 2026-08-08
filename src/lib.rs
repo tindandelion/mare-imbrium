@@ -36,18 +36,23 @@ impl Material {
 pub trait Shader {
     type VertexData: Interpolatable;
 
-    fn shade_vertex(&self, vertex: SurfacePoint) -> Self::VertexData;
+    fn shade_vertex(
+        &self,
+        model_vertex: SurfacePoint,
+        posed_vertex: SurfacePoint,
+    ) -> Self::VertexData;
     fn shade_pixel(&self, data: Self::VertexData) -> Color;
 }
 
 impl Camera {
     pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, mesh: &PosedMesh, shader: &S) {
-        for triangle in mesh.visible_triangles(self.direction()) {
+        for (model_tri, posed_tri) in mesh.visible_triangles_2(self.direction()) {
             let corners = array::from_fn(|i| {
-                let vertex = triangle.vertices[i];
+                let posed_vertex = posed_tri.vertices[i];
+                let model_vertex = model_tri.vertices[i];
                 ShadedCorner {
-                    pixel: self.transform(vertex.position()),
-                    value: shader.shade_vertex(vertex),
+                    pixel: self.transform(posed_vertex.position()),
+                    value: shader.shade_vertex(model_vertex, posed_vertex),
                 }
             });
             ShadedTriangle::new(corners)

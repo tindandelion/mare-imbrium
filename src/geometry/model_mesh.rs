@@ -8,7 +8,6 @@ use crate::geometry::SurfacePoint;
 
 use super::facet::{Facet, NormalTransform};
 use super::triangle::Triangle;
-use super::unit_vec3::UnitVec3;
 
 /// Model-space mesh: **`Facet::verts`** index into vertex positions from **[`vertices`](ModelMesh::vertices)**.
 ///
@@ -53,7 +52,6 @@ impl ModelMesh {
         }
     }
 
-    /// Front-facing facets as world-space **[`Triangle`]**s (corners + per-vertex normals).
     pub fn triangles(&self) -> impl Iterator<Item = Triangle> + '_ {
         self.facets.iter().map(|facet| {
             let corners = facet.resolve_vertices(&self.vertices);
@@ -66,96 +64,17 @@ impl ModelMesh {
             }
         })
     }
-
-    /// Front-facing facets as world-space **[`Triangle`]**s (corners + per-vertex normals).
-    pub fn visible_triangles(
-        &self,
-        view_direction: UnitVec3,
-    ) -> impl Iterator<Item = Triangle> + '_ {
-        self.facets
-            .iter()
-            .map(|facet| {
-                let corners = facet.resolve_vertices(&self.vertices);
-                let normals = facet.vertex_normals();
-                let vertices = std::array::from_fn(|i| SurfacePoint::new(corners[i], normals[i]));
-
-                Triangle {
-                    vertices,
-                    facet_normal: facet.facet_normal(),
-                }
-            })
-            .filter(move |t| t.is_front_facing(view_direction))
-    }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::f32::consts::PI;
 
     use approx::assert_relative_eq;
 
+    use crate::geometry::UnitVec3;
+
     use super::*;
     use glam::Mat4;
-
-    /// **`z = 0`**, **`[-½, ½]²`** in **XY**. Two triangles, outward **[`UnitVec3::NEG_Z`]** —
-    /// visible when **into‑scene** view is **`+Z`** (same rule as **`cube`** fronts vs
-    /// [`Camera::direction`](crate::Camera::direction)).
-    fn flat_square_xy() -> ModelMesh {
-        #[rustfmt::skip]
-        let vertices = vec![
-            Vec3::new(-0.5, -0.5, 0.0),
-            Vec3::new( 0.5, -0.5, 0.0),
-            Vec3::new( 0.5,  0.5, 0.0),
-            Vec3::new(-0.5,  0.5, 0.0),
-        ];
-        // CCW winding viewed from **`−Z`** (outside along **`UnitVec3::NEG_Z`**).
-        let facets = vec![
-            Facet::with_facet_normal([0, 2, 1], UnitVec3::NEG_Z),
-            Facet::with_facet_normal([0, 3, 2], UnitVec3::NEG_Z),
-        ];
-        ModelMesh::new(vertices, facets)
-    }
-
-    #[test]
-    fn from_pos_z_both_facets_visible_with_neg_z_normals() {
-        let mesh = flat_square_xy();
-        let visible = mesh.visible_triangles(UnitVec3::Z).collect::<Vec<_>>();
-        assert_eq!(visible.len(), 2);
-        assert!(
-            visible
-                .iter()
-                .all(|tri| tri.normals() == [UnitVec3::NEG_Z, UnitVec3::NEG_Z, UnitVec3::NEG_Z])
-        );
-    }
-
-    #[test]
-    fn from_neg_z_no_facets_visible() {
-        assert_eq!(
-            flat_square_xy().visible_triangles(UnitVec3::NEG_Z).count(),
-            0
-        );
-    }
-
-    #[test]
-    fn perpendicular_view_is_grazing_neither_triangle_front() {
-        let mesh = flat_square_xy();
-        assert_eq!(mesh.visible_triangles(UnitVec3::X).count(), 0);
-        assert_eq!(mesh.visible_triangles(UnitVec3::Y).count(), 0);
-    }
-
-    #[test]
-    fn pi_rotation_y_swaps_which_direction_sees_square() {
-        let mesh = flat_square_xy();
-        let flipped = mesh.transform(Mat4::from_rotation_y(PI));
-
-        assert_eq!(flipped.visible_triangles(UnitVec3::Z).count(), 0);
-        assert_eq!(flipped.visible_triangles(UnitVec3::NEG_Z).count(), 2);
-
-        assert_eq!(
-            mesh.visible_triangles(UnitVec3::Z).count(),
-            flipped.visible_triangles(UnitVec3::NEG_Z).count(),
-        );
-    }
 
     #[test]
     fn transform_applies_to_facet_normal() {

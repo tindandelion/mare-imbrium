@@ -19,7 +19,7 @@ pub use ortho_camera::Camera;
 pub use webp_encoder::WebpEncoder;
 
 use crate::framebuffer::{Interpolatable, ShadedCorner, ShadedTriangle};
-use crate::geometry::{Mesh, SurfacePoint};
+use crate::geometry::{ModelMesh, SurfacePoint};
 use crate::lighting::Color;
 
 impl Material {
@@ -42,11 +42,11 @@ pub trait Shader {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Shape {
-    pub model: Mesh,
+    pub model: ModelMesh,
 }
 
 impl Shape {
-    pub fn new(model: Mesh) -> Self {
+    pub fn new(model: ModelMesh) -> Self {
         Self { model }
     }
 }

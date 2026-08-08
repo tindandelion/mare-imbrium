@@ -7,7 +7,7 @@ use std::f32::consts::TAU;
 
 use glam::Vec3;
 
-use crate::geometry::{Facet, Mesh, UnitVec3};
+use crate::geometry::{Facet, ModelMesh, UnitVec3};
 
 /// Ring center radius (origin → tube center in **XZ**).
 const DEFAULT_MAJOR_RADIUS: f32 = 0.7;
@@ -17,7 +17,7 @@ const DEFAULT_MINOR_RADIUS: f32 = 0.3;
 /// Indexed torus with **smooth vertex normals** for **Phong** shading.
 ///
 /// **`ring_segments`** and **`tube_segments`** must each be **≥ 3**.
-pub fn torus(ring_segments: usize, tube_segments: usize) -> Mesh {
+pub fn torus(ring_segments: usize, tube_segments: usize) -> ModelMesh {
     assert!(ring_segments >= 3, "ring_segments must be at least 3");
     assert!(tube_segments >= 3, "tube_segments must be at least 3");
 
@@ -60,7 +60,7 @@ pub fn torus(ring_segments: usize, tube_segments: usize) -> Mesh {
         }
     }
 
-    Mesh::new(vertices, facets)
+    ModelMesh::new(vertices, facets)
 }
 
 /// Parametric sample: major circle in **XZ**, tube displacement along **Y**.

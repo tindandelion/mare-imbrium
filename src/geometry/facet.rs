@@ -1,6 +1,6 @@
 //! Triangular hull facet (**CCW winding** vertex indices viewed from outside along the outward [`UnitVec3`]).
 //!
-//! Stored indices reference a parent mesh **`vertices`** (**[`Mesh`](crate::geometry::Mesh)**, e.g. [`cube`](crate::meshes::cube), [`dodecahedron`](crate::meshes::dodecahedron))—**Facet** stays mesh‑agnostic and **does not** embed positions.
+//! Stored indices reference a parent mesh **`vertices`** (**[`ModelMesh`](crate::geometry::ModelMesh)**, e.g. [`cube`](crate::meshes::cube), [`dodecahedron`](crate::meshes::dodecahedron))—**Facet** stays mesh‑agnostic and **does not** embed positions.
 
 use glam::{Mat3, Mat4, Vec3};
 
@@ -83,7 +83,7 @@ impl Facet {
 
 /// Linear map for transforming **normals** alongside a **`Mat4`** point transform.
 ///
-/// Built from the model matrix once per pose (e.g. in **`Mesh::transform`**), then applied per facet.
+/// Built from the model matrix once per pose (e.g. in **`ModelMesh::transform`**), then applied per facet.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct NormalTransform(Mat3);
 

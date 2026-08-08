@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use glam::Vec3;
 
-use crate::geometry::{Facet, Mesh, UnitVec3};
+use crate::geometry::{Facet, ModelMesh, UnitVec3};
 
-pub fn sphere(splits: usize) -> Mesh {
+pub fn sphere(splits: usize) -> ModelMesh {
     let mut splitter = OctaSplitter::new();
     for _ in 0..splits {
         splitter.split_facets();
@@ -92,8 +92,8 @@ impl OctaSplitter {
         })
     }
 
-    pub fn build(self) -> Mesh {
-        Mesh::new(self.vertices, self.facets)
+    pub fn build(self) -> ModelMesh {
+        ModelMesh::new(self.vertices, self.facets)
     }
 
     fn split_edge(&mut self, idx_a: usize, idx_b: usize) -> (usize, Vec3) {

@@ -1,41 +1,25 @@
-//! Indexed triangle mesh backed by **`Vec<glam::Vec3>`** + **`Vec<Facet>`**.
+//! Indexed triangle mesh in **model space**, backed by **`Vec<glam::Vec3>`** + **`Vec<Facet>`**.
 //!
-//! Construction takes arbitrary **vertex positions** + **facet list** (**CCW**, outward facet normal); **[`Mesh::transform`](Mesh::transform)** poses like procedural **[`cube`](crate::meshes::cube)** or **[`dodecahedron`](crate::meshes::dodecahedron)**.
+//! Construction takes arbitrary **vertex positions** + **facet list** (**CCW**, outward facet normal); **[`ModelMesh::transform`](ModelMesh::transform)** poses like procedural **[`cube`](crate::meshes::cube)** or **[`dodecahedron`](crate::meshes::dodecahedron)**.
 
 use glam::{Mat4, Vec3};
 
 use crate::geometry::SurfacePoint;
 
 use super::facet::{Facet, NormalTransform};
+use super::triangle::Triangle;
 use super::unit_vec3::UnitVec3;
 
-/// One strictly front-filled **triangle** in world space: **`corners`** plus per-vertex **[`UnitVec3`]** normals for shading.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Triangle {
-    pub vertices: [SurfacePoint; 3],
-    pub facet_normal: UnitVec3,
-}
-
-impl Triangle {
-    pub fn normals(&self) -> [UnitVec3; 3] {
-        self.vertices.map(|v| v.normal())
-    }
-
-    pub fn is_front_facing(&self, view_direction: UnitVec3) -> bool {
-        view_direction.dot(self.facet_normal) < 0.0
-    }
-}
-
-/// Generic mesh: **`Facet::verts`** index into vertex positions from **[`vertices`](Mesh::vertices)**.
+/// Model-space mesh: **`Facet::verts`** index into vertex positions from **[`vertices`](ModelMesh::vertices)**.
 ///
 /// Procedural builders: **[`cube`](crate::meshes::cube)**, **[`dodecahedron`](crate::meshes::dodecahedron)**.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Mesh {
+pub struct ModelMesh {
     vertices: Vec<Vec3>,
     facets: Vec<Facet>,
 }
 
-impl Mesh {
+impl ModelMesh {
     pub fn new(vertices: Vec<Vec3>, facets: Vec<Facet>) -> Self {
         Self { vertices, facets }
     }
@@ -52,9 +36,9 @@ impl Mesh {
 
     /// Applies **`Mat4::transform_point3`** per vertex and re-poses stored normals per facet
     /// (inverse-transpose of **`m`**'s upper-left **3×3**, computed once for all facets).
-    pub fn transform(&self, m: Mat4) -> Mesh {
+    pub fn transform(&self, m: Mat4) -> ModelMesh {
         let normal_transform = NormalTransform::from_model(m);
-        Mesh {
+        ModelMesh {
             vertices: self
                 .vertices
                 .iter()
@@ -102,7 +86,7 @@ mod tests {
     /// **`z = 0`**, **`[-½, ½]²`** in **XY**. Two triangles, outward **[`UnitVec3::NEG_Z`]** —
     /// visible when **into‑scene** view is **`+Z`** (same rule as **`cube`** fronts vs
     /// [`Camera::direction`](crate::Camera::direction)).
-    fn flat_square_xy() -> Mesh {
+    fn flat_square_xy() -> ModelMesh {
         #[rustfmt::skip]
         let vertices = vec![
             Vec3::new(-0.5, -0.5, 0.0),
@@ -115,7 +99,7 @@ mod tests {
             Facet::with_facet_normal([0, 2, 1], UnitVec3::NEG_Z),
             Facet::with_facet_normal([0, 3, 2], UnitVec3::NEG_Z),
         ];
-        Mesh::new(vertices, facets)
+        ModelMesh::new(vertices, facets)
     }
 
     #[test]
@@ -167,7 +151,7 @@ mod tests {
             Vec3::new(0.0, 2.0, 0.0),
         ];
         let facet_normal = UnitVec3::from_points_ccw(&vertices);
-        let mesh = Mesh::new(
+        let mesh = ModelMesh::new(
             vertices.to_vec(),
             vec![Facet::with_facet_normal([0, 1, 2], facet_normal)],
         );
@@ -187,50 +171,5 @@ mod tests {
         {
             assert_relative_eq!(*actual, expected);
         }
-    }
-}
-
-#[cfg(test)]
-mod triangle_tests {
-    use super::*;
-
-    #[test]
-    fn is_front_facing_true_for_neg_z_normal_when_view_is_pos_z() {
-        let facet_normal = UnitVec3::NEG_Z;
-        let triangle = Triangle {
-            vertices: vertices(facet_normal),
-            facet_normal,
-        };
-        assert!(triangle.is_front_facing(UnitVec3::Z));
-    }
-
-    #[test]
-    fn is_front_facing_false_for_pos_z_normal_when_view_is_pos_z() {
-        let facet_normal = UnitVec3::Z;
-        let triangle = Triangle {
-            vertices: vertices(facet_normal),
-            facet_normal,
-        };
-
-        assert!(!triangle.is_front_facing(UnitVec3::Z));
-    }
-
-    #[test]
-    fn is_front_facing_false_when_grazing() {
-        let facet_normal = UnitVec3::X;
-        let triangle = Triangle {
-            vertices: vertices(facet_normal),
-            facet_normal,
-        };
-
-        assert!(!triangle.is_front_facing(UnitVec3::Z));
-    }
-
-    fn vertices(normal: UnitVec3) -> [SurfacePoint; 3] {
-        [
-            SurfacePoint::new(Vec3::new(0.0, 0.0, 0.0), normal),
-            SurfacePoint::new(Vec3::new(0.0, 0.0, 1.0), normal),
-            SurfacePoint::new(Vec3::new(0.0, 1.0, 0.0), normal),
-        ]
     }
 }

@@ -2,14 +2,14 @@ use glam::{Mat4, Vec3};
 
 use crate::{
     Camera, FrameBuffer, Rgb, Shader, Shape,
-    geometry::{Mesh, SurfacePoint, UnitVec3},
+    geometry::{ModelMesh, SurfacePoint, UnitVec3},
     lighting::Color,
     meshes::sphere,
 };
 
 pub struct Scene {
     pub sun_direction: UnitVec3,
-    pub globe_mesh: Mesh,
+    pub globe_mesh: ModelMesh,
     pub transform: Mat4,
     pub background: Rgb,
 }

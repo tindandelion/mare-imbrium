@@ -1,4 +1,4 @@
-//! Platonic **dodecahedron** (**20** verts × **three.js** **`DodecahedronGeometry`** detail **0**) as **[`crate::geometry::Mesh`]**.
+//! Platonic **dodecahedron** (**20** verts × **three.js** **`DodecahedronGeometry`** detail **0**) as **[`crate::geometry::ModelMesh`]**.
 //!
 //! Golden‑ratio coordinates scaled **`× (0.5 /  φ)`** — **`max |x|, |y|, |z| = 0.5`**, same bounding box axis as **[`cube`](crate::meshes::cube)**.
 //!
@@ -6,7 +6,7 @@
 //!
 use glam::Vec3;
 
-use crate::geometry::{Facet, Mesh, UnitVec3};
+use crate::geometry::{Facet, ModelMesh, UnitVec3};
 
 /// Indices for **every** planar triangle (**12** pentagons × 3 wedges) lifted from **`three.js`** **`DodecahedronGeometry`** (detail **0**).
 const THREE_JS_DETAIL0_TRIANGLES: [[usize; 3]; 36] = [
@@ -80,17 +80,17 @@ fn platonic_scaled_vertices_array() -> [Vec3; 20] {
     verts.map(|v| v * scale)
 }
 
-/// Default **scaled Platonic dodecahedron** as **`Mesh`**: **20** verts, **36** wedge **`Facet`**s (**`three.js`** detail **0** tri list).
+/// Default **scaled Platonic dodecahedron** as **`ModelMesh`**: **20** verts, **36** wedge **`Facet`**s (**`three.js`** detail **0** tri list).
 ///
-/// Pose with **`Mesh::transform`**.
-pub fn dodecahedron() -> Mesh {
+/// Pose with **`ModelMesh::transform`**.
+pub fn dodecahedron() -> ModelMesh {
     let vertices_arr = platonic_scaled_vertices_array();
     let facets: Vec<Facet> = THREE_JS_DETAIL0_TRIANGLES
         .into_iter()
         .map(|tri| facet_from_corners(&vertices_arr, tri))
         .collect();
 
-    Mesh::new(vertices_arr.into_iter().collect(), facets)
+    ModelMesh::new(vertices_arr.into_iter().collect(), facets)
 }
 
 /// Outward **CCW** facet (left‑handed view along **`UnitVec3`**) matching [`Facet::is_front_facing`].

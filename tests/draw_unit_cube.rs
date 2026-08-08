@@ -8,10 +8,13 @@
 //! **`scale = (min(w,h) − 1) / 2`** is an integer, so unit-cube **`±0.5`** corners land exactly on
 //! **`FILLED_MIN…FILLED_LAST`** (**no** intermediate **`f32::round`**).
 
+mod common;
+
+use crate::common::cube;
 use glam::{Mat4, UVec2, Vec3};
 use mare_imbrium::{
     Camera, FrameBuffer, Light, Material, Rgb, framebuffer::FbPixel, geometry::PosedMesh,
-    meshes::cube, shaders::PhongShader,
+    shaders::PhongShader,
 };
 
 const FB_WIDTH: u32 = 101;

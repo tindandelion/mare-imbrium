@@ -5,7 +5,7 @@
 
 use glam::Vec3;
 
-use crate::geometry::{Facet, ModelMesh, UnitVec3};
+use mare_imbrium::geometry::{Facet, ModelMesh, UnitVec3};
 
 /// Two **`Facet`**s per planar hull quad (same **`normal`**, **`(w,x,y)` + `(w,y,z)`** given CCW verts **`w…z`** seen from outside along **`normal`**).
 const fn facets_from_quad_ccw_corner(normal: UnitVec3, verts: [usize; 4]) -> [Facet; 2] {
@@ -54,7 +54,7 @@ mod tests {
     use glam::{Mat4, Vec3};
 
     use super::cube;
-    use crate::geometry::UnitVec3;
+    use mare_imbrium::geometry::UnitVec3;
     use std::f32::consts::FRAC_PI_4;
 
     #[test]

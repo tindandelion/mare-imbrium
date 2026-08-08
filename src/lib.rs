@@ -19,7 +19,7 @@ pub use ortho_camera::Camera;
 pub use webp_encoder::WebpEncoder;
 
 use crate::framebuffer::{Interpolatable, ShadedCorner, ShadedTriangle};
-use crate::geometry::{ModelMesh, SurfacePoint};
+use crate::geometry::{PosedMesh, SurfacePoint};
 use crate::lighting::Color;
 
 impl Material {
@@ -40,20 +40,9 @@ pub trait Shader {
     fn shade_pixel(&self, data: Self::VertexData) -> Color;
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Shape {
-    pub model: ModelMesh,
-}
-
-impl Shape {
-    pub fn new(model: ModelMesh) -> Self {
-        Self { model }
-    }
-}
-
 impl Camera {
-    pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, shape: &Shape, shader: &S) {
-        for triangle in shape.model.visible_triangles(self.direction()) {
+    pub fn render<S: Shader>(&self, fb: &mut FrameBuffer, shape: &PosedMesh, shader: &S) {
+        for triangle in shape.visible_triangles(self.direction()) {
             let corners = array::from_fn(|i| {
                 let vertex = triangle.vertices[i];
                 ShadedCorner {

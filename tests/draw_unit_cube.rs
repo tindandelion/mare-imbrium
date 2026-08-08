@@ -10,8 +10,8 @@
 
 use glam::{Mat4, UVec2, Vec3};
 use mare_imbrium::{
-    Camera, FrameBuffer, Light, Material, Rgb, Shape, framebuffer::FbPixel, meshes::cube,
-    shaders::PhongShader,
+    Camera, FrameBuffer, Light, Material, Rgb, framebuffer::FbPixel, geometry::PosedMesh,
+    meshes::cube, shaders::PhongShader,
 };
 
 const FB_WIDTH: u32 = 101;
@@ -44,12 +44,14 @@ fn draw_occluded_cubes_hides_far_cube() {
     assert_eq!(fb.as_ref(), expected.as_ref());
 }
 
-fn positioned_cube(z_position: f32, color: Rgb) -> (Shape, Material) {
+fn positioned_cube(z_position: f32, color: Rgb) -> (PosedMesh, Material) {
     let material = Material::from_rgb(color, Rgb::BLACK, Rgb::BLACK, None);
-    (
-        Shape::new(cube().transform(Mat4::from_translation(Vec3::new(0.0, 0.0, z_position)))),
-        material,
-    )
+    let model = cube();
+    let posed = PosedMesh::new(
+        model,
+        Mat4::from_translation(Vec3::new(0.0, 0.0, z_position)),
+    );
+    (posed, material)
 }
 
 fn framebuffer_with_rectangle(top_left: UVec2, bottom_right: UVec2, color: Rgb) -> FrameBuffer {
@@ -62,7 +64,7 @@ fn framebuffer_with_rectangle(top_left: UVec2, bottom_right: UVec2, color: Rgb) 
     fb
 }
 
-fn render_shape(shape: &Shape, fb: &mut FrameBuffer, camera: &Camera, material: &Material) {
+fn render_shape(shape: &PosedMesh, fb: &mut FrameBuffer, camera: &Camera, material: &Material) {
     let light = Light::directional(-camera.direction(), 1.0);
     let shader = PhongShader {
         material,

@@ -1,27 +1,29 @@
 use glam::{Mat4, Vec3};
 
 use crate::{
-    Camera, FrameBuffer, Rgb, Shader, Shape,
-    geometry::{ModelMesh, SurfacePoint, UnitVec3},
+    Camera, FrameBuffer, Rgb, Shader,
+    geometry::{PosedMesh, SurfacePoint, UnitVec3},
     lighting::Color,
     meshes::sphere,
 };
 
 pub struct Scene {
     pub sun_direction: UnitVec3,
-    pub globe_mesh: ModelMesh,
-    pub transform: Mat4,
     pub background: Rgb,
+    posed_globe: PosedMesh,
 }
 
 impl Scene {
     pub fn new(sun_direction: UnitVec3, mesh_lod: usize) -> Self {
         Self {
             sun_direction,
-            transform: Mat4::IDENTITY,
-            globe_mesh: sphere(mesh_lod),
+            posed_globe: PosedMesh::new(sphere(mesh_lod), Mat4::IDENTITY),
             background: Rgb::from_hex(0x111111),
         }
+    }
+
+    pub fn set_pose_transform(&mut self, transform: Mat4) {
+        self.posed_globe.pose = transform;
     }
 
     pub fn render(&self, framebuffer: &mut FrameBuffer, camera: &Camera) {
@@ -31,8 +33,7 @@ impl Scene {
             toward_sun: self.sun_direction,
         };
 
-        let shape = Shape::new(self.globe_mesh.transform(self.transform));
-        camera.render(framebuffer, &shape, &shader);
+        camera.render(framebuffer, &self.posed_globe, &shader);
     }
 }
 

@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for frame_index in 0..ANIMATED_SCENE_FRAME_COUNT {
         let t = frame_index as f32 / lap_frames * TAU;
-        scene.transform = model_matrix_tumble(t);
+        scene.set_pose_transform(model_matrix_tumble(t));
         scene.render(&mut framebuffer, &camera);
 
         png_writer.write_frame(frame_index, &framebuffer)?;

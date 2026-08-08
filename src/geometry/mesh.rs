@@ -13,11 +13,16 @@ use super::unit_vec3::UnitVec3;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Triangle {
     pub vertices: [SurfacePoint; 3],
+    pub facet_normal: UnitVec3,
 }
 
 impl Triangle {
     pub fn normals(&self) -> [UnitVec3; 3] {
         self.vertices.map(|v| v.normal())
+    }
+
+    pub fn is_front_facing(&self, view_direction: UnitVec3) -> bool {
+        view_direction.dot(self.facet_normal) < 0.0
     }
 }
 
@@ -71,14 +76,17 @@ impl Mesh {
     ) -> impl Iterator<Item = Triangle> + '_ {
         self.facets
             .iter()
-            .filter(move |f| f.is_front_facing(view_direction))
             .map(|facet| {
                 let corners = facet.resolve_vertices(&self.vertices);
                 let normals = facet.vertex_normals();
                 let vertices = std::array::from_fn(|i| SurfacePoint::new(corners[i], normals[i]));
 
-                Triangle { vertices }
+                Triangle {
+                    vertices,
+                    facet_normal: facet.facet_normal(),
+                }
             })
+            .filter(move |t| t.is_front_facing(view_direction))
     }
 }
 
@@ -179,5 +187,50 @@ mod tests {
         {
             assert_relative_eq!(*actual, expected);
         }
+    }
+}
+
+#[cfg(test)]
+mod triangle_tests {
+    use super::*;
+
+    #[test]
+    fn is_front_facing_true_for_neg_z_normal_when_view_is_pos_z() {
+        let facet_normal = UnitVec3::NEG_Z;
+        let triangle = Triangle {
+            vertices: vertices(facet_normal),
+            facet_normal,
+        };
+        assert!(triangle.is_front_facing(UnitVec3::Z));
+    }
+
+    #[test]
+    fn is_front_facing_false_for_pos_z_normal_when_view_is_pos_z() {
+        let facet_normal = UnitVec3::Z;
+        let triangle = Triangle {
+            vertices: vertices(facet_normal),
+            facet_normal,
+        };
+
+        assert!(!triangle.is_front_facing(UnitVec3::Z));
+    }
+
+    #[test]
+    fn is_front_facing_false_when_grazing() {
+        let facet_normal = UnitVec3::X;
+        let triangle = Triangle {
+            vertices: vertices(facet_normal),
+            facet_normal,
+        };
+
+        assert!(!triangle.is_front_facing(UnitVec3::Z));
+    }
+
+    fn vertices(normal: UnitVec3) -> [SurfacePoint; 3] {
+        [
+            SurfacePoint::new(Vec3::new(0.0, 0.0, 0.0), normal),
+            SurfacePoint::new(Vec3::new(0.0, 0.0, 1.0), normal),
+            SurfacePoint::new(Vec3::new(0.0, 1.0, 0.0), normal),
+        ]
     }
 }

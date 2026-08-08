@@ -79,13 +79,6 @@ impl Facet {
         let v = self.verts;
         [(v[0], v[1]), (v[1], v[2]), (v[2], v[0])].into_iter()
     }
-
-    /// **`normal` · `view_direction` < 0** for **into‑scene** view (**[`crate::Camera::direction`]**)—mirrors **`cube`** / hull wireframe classification.
-    ///
-    /// Grazing (**`dot == 0`**) is **not** front-facing.
-    pub fn is_front_facing(&self, view_direction: UnitVec3) -> bool {
-        view_direction.dot(self.normal) < 0.0
-    }
 }
 
 /// Linear map for transforming **normals** alongside a **`Mat4`** point transform.
@@ -148,24 +141,6 @@ mod facet_tests {
             facet.edges().collect::<Vec<_>>(),
             vec![(1, 2), (2, 7), (7, 1)],
         );
-    }
-
-    #[test]
-    fn is_front_facing_true_for_neg_z_normal_when_view_is_pos_z() {
-        let facet = Facet::with_facet_normal(VERTS, UnitVec3::NEG_Z);
-        assert!(facet.is_front_facing(UnitVec3::Z));
-    }
-
-    #[test]
-    fn is_front_facing_false_for_pos_z_normal_when_view_is_pos_z() {
-        let facet = Facet::with_facet_normal(VERTS, UnitVec3::Z);
-        assert!(!facet.is_front_facing(UnitVec3::Z));
-    }
-
-    #[test]
-    fn is_front_facing_false_when_grazing() {
-        let facet = Facet::with_facet_normal(VERTS, UnitVec3::X);
-        assert!(!facet.is_front_facing(UnitVec3::Z));
     }
 }
 

@@ -52,13 +52,16 @@ const SRGB_LINEAR_SCALE: f32 = 12.92;
 const SRGB_ENCODE_BREAK: f32 = 0.0031308;
 const SRGB_GAMMA: f32 = 2.4;
 
-fn srgb_channel_to_linear(channel: u8) -> f32 {
-    let s = channel as f32 / 255.0;
+pub(crate) fn srgb_normalized_to_linear(s: f32) -> f32 {
     if s <= SRGB_LINEAR_BREAK {
         s / SRGB_LINEAR_SCALE
     } else {
         ((s + 0.055) / 1.055).powf(SRGB_GAMMA)
     }
+}
+
+fn srgb_channel_to_linear(channel: u8) -> f32 {
+    srgb_normalized_to_linear(channel as f32 / 255.0)
 }
 
 fn linear_channel_to_srgb(channel: f32) -> u8 {

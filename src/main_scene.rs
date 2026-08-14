@@ -20,7 +20,7 @@ pub struct Scene {
 
 impl Scene {
     const MESH_LOD: usize = 5;
-    const TEXTURE_PATH: &str = "assets/texture.png";
+    const TEXTURE_PATH: &str = "assets/lroc_color_16bit_srgb_4k.tif";
 
     pub fn new(sun_direction: UnitVec3) -> Self {
         Self {
@@ -39,7 +39,7 @@ impl Scene {
 
         let shader = LunarSurfaceShader::new(
             self.sun_direction,
-            Texture::load_from_png(Self::TEXTURE_PATH).unwrap(),
+            Texture::load_from_tif(Self::TEXTURE_PATH).unwrap(),
         );
         camera.render(framebuffer, &self.posed_globe, &shader);
     }

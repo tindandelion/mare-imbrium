@@ -3,7 +3,7 @@ use std::{fs::File, io};
 use glam::Vec3;
 use png::Transformations;
 
-use crate::{Rgb, lighting::Color};
+use crate::{Rgb, framebuffer::srgb_normalized_to_linear, lighting::Color};
 
 use super::texture_mapper::TextureCoordMapper;
 
@@ -49,10 +49,79 @@ impl Texture {
         Ok(Self::new(info.width as usize, info.height as usize, pixels))
     }
 
+    pub fn load_from_tif(path: &str) -> io::Result<Self> {
+        let mut decoder = tiff::decoder::Decoder::new(File::open(path)?).map_err(tiff_to_io)?;
+
+        match decoder.colortype().map_err(tiff_to_io)? {
+            tiff::ColorType::RGB(16) => {}
+            color_type => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("expected 16-bit RGB TIFF, got {color_type:?}"),
+                ));
+            }
+        }
+
+        let (width, height) = decoder.dimensions().map_err(tiff_to_io)?;
+        let tiff::decoder::DecodingResult::U16(samples) =
+            decoder.read_image().map_err(tiff_to_io)?
+        else {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "expected 16-bit TIFF samples",
+            ));
+        };
+
+        let pixels = samples
+            .chunks_exact(3)
+            .map(|chunk| {
+                Color(
+                    srgb16_channel_to_linear(chunk[0]),
+                    srgb16_channel_to_linear(chunk[1]),
+                    srgb16_channel_to_linear(chunk[2]),
+                )
+            })
+            .collect();
+
+        Ok(Self::new(width as usize, height as usize, pixels))
+    }
+
     pub fn get_pixel(&self, normal: Vec3) -> Color {
         debug_assert!(normal.is_normalized());
 
         let (u, v) = self.coord_mapper.to_uv_coords(normal);
         self.pixels[v * self.width + u]
+    }
+}
+
+fn tiff_to_io(err: tiff::TiffError) -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidData, err)
+}
+
+fn srgb16_channel_to_linear(channel: u16) -> f32 {
+    srgb_normalized_to_linear(channel as f32 / 65535.0)
+}
+
+#[cfg(test)]
+mod tests {
+    use approx::assert_relative_eq;
+    use tiff::encoder::{TiffEncoder, colortype};
+
+    use super::*;
+
+    #[test]
+    fn load_from_tif_decodes_16bit_srgb_to_linear() {
+        let mut file = tempfile::NamedTempFile::new().unwrap();
+        TiffEncoder::new(&mut file)
+            .unwrap()
+            .write_image::<colortype::RGB16>(1, 1, &[0, 32768, 65535])
+            .unwrap();
+
+        let texture = Texture::load_from_tif(file.path().to_str().unwrap()).unwrap();
+        let Color(r, g, b) = texture.get_pixel(Vec3::Y);
+
+        assert_relative_eq!(r, 0.0);
+        assert_relative_eq!(g, ((32768.0_f32 / 65535.0 + 0.055) / 1.055).powf(2.4));
+        assert_relative_eq!(b, 1.0);
     }
 }

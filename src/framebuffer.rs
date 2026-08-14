@@ -5,6 +5,7 @@ mod rgb;
 mod shaded_triangle;
 
 pub use rgb::Rgb;
+pub(crate) use rgb::srgb_normalized_to_linear;
 
 pub use interpolator::Interpolatable;
 pub use shaded_triangle::{ShadedCorner, ShadedTriangle};

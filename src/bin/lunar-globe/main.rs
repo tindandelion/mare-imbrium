@@ -9,7 +9,6 @@ use std::path::Path;
 const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.0, -1.0);
 const SUN_DIRECTION: Vec3 = Vec3::new(1.0, 1.0, -0.5);
 
-const GLOBE_TESSELATION: usize = 5;
 const GLOBE_SCALE: f32 = 0.9;
 
 const SCENE_WIDTH: u32 = 800;
@@ -40,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut framebuffer = FrameBuffer::new(SCENE_WIDTH, SCENE_HEIGHT);
     let camera = Camera::for_viewport(SCENE_WIDTH, SCENE_HEIGHT).move_to(CAMERA_POS);
 
-    let mut scene = Scene::new(SUN_DIRECTION.into(), GLOBE_TESSELATION);
+    let mut scene = Scene::new(SUN_DIRECTION.into());
 
     let frame_production_start = std::time::Instant::now();
     let lap_frames = ANIMATED_SCENE_FRAME_COUNT.max(1) as f32;

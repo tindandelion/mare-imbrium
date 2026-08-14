@@ -1,4 +1,4 @@
-use std::{fs::File, io};
+use std::{f32::consts, fs::File, io};
 
 use png::Transformations;
 
@@ -31,9 +31,10 @@ impl Texture {
         })
     }
 
-    fn get_pixel(&self, x: usize, y: usize) -> Color {
-        let index = y * self.width + x;
-        return self.pixels[index];
+    fn get_pixel_polar(&self, azimuth: f32, polar: f32) -> Color {
+        let u = ((self.width - 1) as f32 * azimuth / consts::TAU) as usize;
+        let v = ((self.height - 1) as f32 * polar / consts::PI) as usize;
+        return self.pixels[v * self.width + u];
     }
 }
 
@@ -45,10 +46,12 @@ mod tests {
     fn load_texture_from_png() {
         let texture = Texture::load_from_png("assets/texture.png").unwrap();
 
-        let upper_left_pixel = texture.get_pixel(0, 0);
-        let center_pixel = texture.get_pixel(texture.width / 2, texture.height / 2);
+        let upper_left_pixel = texture.get_pixel_polar(0.0, 0.0);
+        let center_pixel = texture.get_pixel_polar(consts::PI, consts::FRAC_PI_2);
+        let bottom_right_pixel = texture.get_pixel_polar(consts::TAU, consts::PI);
 
         assert_eq!(Color(0.0, 1.0, 1.0), upper_left_pixel);
         assert_eq!(Color(1.0, 0.0, 0.0), center_pixel);
+        assert_eq!(Color(0.0, 1.0, 0.0), bottom_right_pixel);
     }
 }

@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn render_scene(width: u32, height: u32) -> FrameBuffer {
     let mut framebuffer = FrameBuffer::new(width, height);
     let camera = Camera::for_viewport(width, height).move_to(CAMERA_POS);
-    let scene = Scene::new(Vec3::new(0.5, 0.5, -1.0).into(), 5);
+    let scene = Scene::new(Vec3::new(0.5, 0.5, -1.0).into());
 
     scene.render(&mut framebuffer, &camera);
     framebuffer

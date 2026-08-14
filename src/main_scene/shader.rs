@@ -8,13 +8,13 @@ use std::ops::{Add, Mul, Sub};
 
 use super::Texture;
 
-pub struct LunarSurfaceShader {
+pub struct LunarSurfaceShader<'a> {
     toward_sun: UnitVec3,
-    texture: Texture,
+    texture: &'a Texture,
 }
 
-impl LunarSurfaceShader {
-    pub fn new(toward_sun: UnitVec3, texture: Texture) -> Self {
+impl<'a> LunarSurfaceShader<'a> {
+    pub fn new(toward_sun: UnitVec3, texture: &'a Texture) -> Self {
         Self {
             toward_sun,
             texture,
@@ -22,7 +22,7 @@ impl LunarSurfaceShader {
     }
 }
 
-impl Shader for LunarSurfaceShader {
+impl<'a> Shader for LunarSurfaceShader<'a> {
     type VertexData = LunarSurfaceData;
 
     fn shade_vertex(

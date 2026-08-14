@@ -1,3 +1,4 @@
+mod coords;
 mod shader;
 mod texture;
 
@@ -19,6 +20,7 @@ pub struct Scene {
 
 impl Scene {
     const MESH_LOD: usize = 5;
+    const TEXTURE_PATH: &str = "assets/texture.png";
 
     pub fn new(sun_direction: UnitVec3) -> Self {
         Self {
@@ -35,7 +37,10 @@ impl Scene {
     pub fn render(&self, framebuffer: &mut FrameBuffer, camera: &Camera) {
         framebuffer.clear(self.background);
 
-        let shader = LunarSurfaceShader::new(self.sun_direction);
+        let shader = LunarSurfaceShader::new(
+            self.sun_direction,
+            Texture::load_from_png(Self::TEXTURE_PATH).unwrap(),
+        );
         camera.render(framebuffer, &self.posed_globe, &shader);
     }
 }

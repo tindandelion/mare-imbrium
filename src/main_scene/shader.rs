@@ -4,15 +4,24 @@ use crate::{
     lighting::Color,
 };
 use glam::Vec3;
-use std::ops::{Add, Mul, Sub};
+use std::{
+    f32::consts,
+    ops::{Add, Mul, Sub},
+};
+
+use super::{Texture, coords::to_unit_spherical};
 
 pub struct LunarSurfaceShader {
     toward_sun: UnitVec3,
+    texture: Texture,
 }
 
 impl LunarSurfaceShader {
-    pub fn new(toward_sun: UnitVec3) -> Self {
-        Self { toward_sun }
+    pub fn new(toward_sun: UnitVec3, texture: Texture) -> Self {
+        Self {
+            toward_sun,
+            texture,
+        }
     }
 }
 
@@ -31,12 +40,13 @@ impl Shader for LunarSurfaceShader {
     }
 
     fn shade_pixel(&self, normals: Self::VertexData) -> Color {
-        let illumination = self.toward_sun.dot(normals.world_space_normal).max(0.0);
-        let color = Color(
-            (normals.model_space_pos.x + 1.0) / 2.0,
-            (normals.model_space_pos.y + 1.0) / 2.0,
-            (normals.model_space_pos.z + 1.0) / 2.0,
-        );
+        let illumination = self
+            .toward_sun
+            .dot(normals.world_space_normal.normalize())
+            .max(0.0);
+        let (azimuth, polar) = to_unit_spherical(normals.model_space_pos.normalize());
+
+        let color = self.texture.get_pixel_polar(azimuth + consts::PI, polar);
         color * illumination
     }
 }

@@ -46,7 +46,7 @@ mod tests {
         let texture = Texture::load_from_png("assets/texture.png").unwrap();
 
         let upper_left_pixel = texture.get_pixel(0, 0);
-        let center_pixel = texture.get_pixel(63, 31);
+        let center_pixel = texture.get_pixel(texture.width / 2, texture.height / 2);
 
         assert_eq!(Color(0.0, 1.0, 1.0), upper_left_pixel);
         assert_eq!(Color(1.0, 0.0, 0.0), center_pixel);

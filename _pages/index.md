@@ -5,8 +5,16 @@ permalink: /
 list_title: Project diary
 ---
 
-Hello and welcome to my new learning project: **Mare Imbrium**. In this project, I'm going to explore new topics in computer graphics programming while building a program that renders lunar landscapes using real-world data from NASA.
+Hello and welcome to my new learning project: [**Mare Imbrium**](https://github.com/tindandelion/mare-imbrium). In this project, I'm going to explore new topics in computer graphics programming while building a program that renders lunar landscapes using real-world data from NASA.
 
+## Current progress
+
+Our first goal is to render the Moon as a globe. We do it in a step-by-step manner, as documented in the project diary below, so don't be surprised if the most recent render doesn't look like a moon at all. 
+
+<div style="text-align: center;">
+<video src="https://github.com/tindandelion/mare-imbrium/releases/latest/download/lunar-globe.webm" alt="Lunar globe" autoplay loop muted playsinline
+  width="800" class="animation"></video>
+</div>
 
 ## Motivations
 
@@ -24,12 +32,4 @@ In this project, I would like to use my newly acquired skills and NASA's data to
 
 * A flight simulation over the lunar surface. Picking a specific trajectory, for example along the equator, we could simulate a view from a spaceship flying over the surface at a low altitude, so we could see all the details of the terrain at its finest resolution.
 
-## Current progress
-
-Our first goal is to render the Moon as a globe.
-
-<div style="text-align: center;">
-<video src="https://github.com/tindandelion/mare-imbrium/releases/latest/download/lunar-globe.webm" alt="Lunar globe" autoplay loop muted playsinline
-  width="800" class="animation"></video>
-</div>
 

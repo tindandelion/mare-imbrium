@@ -7,7 +7,7 @@ use std::f32::consts::TAU;
 use std::path::Path;
 
 const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.0, -1.0);
-const SUN_DIRECTION: Vec3 = Vec3::new(1.0, 1.0, -0.5);
+const SUN_DIRECTION: Vec3 = Vec3::new(1.0, 1.0, -1.2);
 
 const GLOBE_SCALE: f32 = 0.9;
 
@@ -45,6 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let lap_frames = ANIMATED_SCENE_FRAME_COUNT.max(1) as f32;
 
     for frame_index in 0..ANIMATED_SCENE_FRAME_COUNT {
+        println!("Rendering frame {frame_index} of {ANIMATED_SCENE_FRAME_COUNT}");
         let t = frame_index as f32 / lap_frames * TAU;
         scene.set_pose_transform(model_matrix_tumble(t));
         scene.render(&mut framebuffer, &camera);

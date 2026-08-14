@@ -8,8 +8,8 @@ use mare_imbrium::{Camera, FrameBuffer, WebpEncoder, main_scene::Scene};
 
 use crate::kitty_terminal::KittyTerminal;
 
-const CAMERA_POS: Vec3 = Vec3::new(0.0, 1.0, -0.0001);
-const SUN_DIRECTION: Vec3 = CAMERA_POS;
+const CAMERA_POS: Vec3 = Vec3::new(0.0, 0.0, -1.0);
+const SUN_DIRECTION: Vec3 = Vec3::new(1.0, 1.0, -1.2);
 const OUT_PATH: &str = "still-scene.webp";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

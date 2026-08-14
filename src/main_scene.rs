@@ -1,13 +1,14 @@
-use std::ops::{Add, Mul, Sub};
-
-use glam::{Mat4, Vec3};
-
+mod texture;
 use crate::{
     Camera, FrameBuffer, Rgb, Shader,
     geometry::{PosedMesh, SurfacePoint, UnitVec3},
     lighting::Color,
     meshes::sphere,
 };
+use glam::{Mat4, Vec3};
+use std::ops::{Add, Mul, Sub};
+
+pub use texture::Texture;
 
 pub struct Scene {
     pub sun_direction: UnitVec3,

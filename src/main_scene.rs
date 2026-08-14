@@ -1,6 +1,6 @@
-mod coords;
 mod shader;
 mod texture;
+mod texture_mapper;
 
 use crate::{
     Camera, FrameBuffer, Rgb,

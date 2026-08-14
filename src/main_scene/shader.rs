@@ -6,7 +6,7 @@ use crate::{
 use glam::Vec3;
 use std::ops::{Add, Mul, Sub};
 
-use super::{Texture, coords::to_spherical};
+use super::Texture;
 
 pub struct LunarSurfaceShader {
     toward_sun: UnitVec3,
@@ -41,9 +41,8 @@ impl Shader for LunarSurfaceShader {
             .toward_sun
             .dot(normals.world_space_normal.normalize())
             .max(0.0);
-        let (azimuth, polar) = to_spherical(normals.model_space_pos.normalize());
 
-        let color = self.texture.get_pixel_polar(azimuth, polar);
+        let color = self.texture.get_pixel(normals.model_space_pos.normalize());
         color * illumination
     }
 }

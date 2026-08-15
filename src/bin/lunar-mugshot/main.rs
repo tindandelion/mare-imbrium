@@ -68,7 +68,7 @@ mod tests {
     use webp_animation::{ColorMode, Decoder};
 
     const EXPECTED_WEBP: &str = "test-data/still-scene.webp";
-    const IMAGE_DISTANCE_TOLERANCE: f64 = 10.0;
+    const IMAGE_MSE_TOLERANCE: f64 = 0.0;
 
     #[test]
     fn test_render_scene() {
@@ -77,10 +77,10 @@ mod tests {
 
         let actual = render_scene(width, height);
         let actual_rgb = actual.as_ref();
-        let l2_distance = rgb_l2_distance(actual_rgb, &expected_rgb);
+        let mse = mse(actual_rgb, &expected_rgb);
         assert!(
-            l2_distance < IMAGE_DISTANCE_TOLERANCE,
-            "rendered scene does not match {} (L2 distance: {l2_distance})",
+            mse <= IMAGE_MSE_TOLERANCE,
+            "rendered scene does not match {} (Mean squared error: {mse})",
             expected_path.display()
         );
     }
@@ -102,17 +102,19 @@ mod tests {
         encoder.write(&golden_path).expect("write golden webp");
     }
 
-    fn rgb_l2_distance(actual: &[u8], expected: &[u8]) -> f64 {
-        assert_eq!(actual.len(), expected.len(), "RGB buffers differ in length");
-        actual
+    fn mse(actual: &[u8], expected: &[u8]) -> f64 {
+        assert_eq!(actual.len(), expected.len(), "buffers differ in length");
+        assert!(!actual.is_empty(), "buffers are empty");
+
+        let diff = actual
             .iter()
             .zip(expected)
             .map(|(a, e)| {
                 let delta = i32::from(*a) - i32::from(*e);
                 f64::from(delta * delta)
             })
-            .sum::<f64>()
-            .sqrt()
+            .sum::<f64>();
+        diff / actual.len() as f64
     }
 
     fn decode_webp_rgb(path: &Path) -> (u32, u32, Vec<u8>) {

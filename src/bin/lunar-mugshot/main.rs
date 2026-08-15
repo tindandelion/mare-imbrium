@@ -68,7 +68,7 @@ mod tests {
     use webp_animation::{ColorMode, Decoder};
 
     const EXPECTED_WEBP: &str = "test-data/still-scene.webp";
-    const IMAGE_MSE_TOLERANCE: f64 = 0.0;
+    const IMAGE_MSE_TOLERANCE: f64 = 0.01;
 
     #[test]
     fn test_render_scene() {

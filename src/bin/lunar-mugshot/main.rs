@@ -2,7 +2,7 @@ mod kitty_terminal;
 use std::path::Path;
 use std::thread;
 
-use glam::Vec3;
+use glam::{Mat4, Vec3};
 
 use mare_imbrium::{Camera, FrameBuffer, WebpEncoder, main_scene::Scene};
 
@@ -17,9 +17,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (width, height) = terminal.pixel_dimensions()?;
     let framebuffer = render_scene(width, height);
 
-    let fb_clone = framebuffer.clone();
-    let handle = thread::spawn(move || save_webp(&fb_clone).unwrap());
     display_in_terminal(&mut terminal, &framebuffer)?;
+    let handle = thread::spawn(move || save_webp(&framebuffer).unwrap());
+    println!("Saving webp...");
     handle.join().unwrap();
 
     Ok(())
@@ -28,7 +28,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn render_scene(width: u32, height: u32) -> FrameBuffer {
     let mut framebuffer = FrameBuffer::new(width, height);
     let camera = Camera::for_viewport(width, height).move_to(CAMERA_POS);
-    let scene = Scene::new(SUN_DIRECTION.into());
+    let mut scene = Scene::new(SUN_DIRECTION.into());
+    scene.set_pose_transform(Mat4::from_scale(Vec3::splat(0.95)));
 
     scene.render(&mut framebuffer, &camera);
     framebuffer

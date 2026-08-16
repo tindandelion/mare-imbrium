@@ -2,3 +2,11 @@
 'watch:test' = ["watch", "-c", "-x", "test --lib -- --format=terse"]
 'watch:still' = ["watch", "-x", "run --bin still-scene"]
 'watch:build' = ["watch", "-x", "build --all-targets"]
+'test:regen' = [
+    "test",
+    "--bin",
+    "lunar-mugshot",
+    "refresh_still_scene_golden_webp",
+    "--",
+    "--ignored",
+]

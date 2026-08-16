@@ -59,11 +59,17 @@ impl Shader for LunarSurfaceShader {
 
     fn shade_pixel(&self, normals: Self::VertexData) -> Color {
         let illumination = self.toward_sun.dot(normals.world_space_normal).max(0.0);
-        let color = Color(
-            (normals.model_space_pos.x + 1.0) / 2.0,
-            (normals.model_space_pos.y + 1.0) / 2.0,
-            (normals.model_space_pos.z + 1.0) / 2.0,
-        );
+        let model_space_pos = normals.model_space_pos;
+
+        let color = if model_space_pos.x.abs() < 0.005 {
+            Color(0.0, 0.0, 1.0)
+        } else {
+            Color(
+                (model_space_pos.x + 1.0) / 2.0,
+                (model_space_pos.y + 1.0) / 2.0,
+                (model_space_pos.z + 1.0) / 2.0,
+            )
+        };
         color * illumination
     }
 }

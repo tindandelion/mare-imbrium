@@ -36,7 +36,11 @@ On the other hand, [CGI Moon Kit][cgi-moon-kit] provides us with lunar color map
    <img src="https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_2k.jpg" alt="Lunar color map" style="width: 90%; padding-top: 1em;">
 </a>
 
-In a nutshell, the algorithm for mapping that image to the sphere looks like this:
+Until now, we just used the same base color for each pixel and simply shaded it according to the lighting model formulas. But having the color map at hand, we can now **choose a different base color** for every pixel we render! To make it work, however, the shader has to know the position on the sphere's surface when it renders the pixel.
+
+To be more precise, we need to know the geographic coordinates $(lat, lon)$ to pick the color from the map, but the Cartesian coordinates work just as well: we can convert between these two coordinate systems using well-known formulas.
+
+In a nutshell, the algorithm for gluing the color map to the sphere looks like this:
 
 1. For each screen pixel, determine its coordinates $P_m = (x, y, z)$ in _model coordinate space_;
 2. Convert those coordinates from Cartesian to spherical $(lat, lon)$ and pick the corresponding pixel from the color map;

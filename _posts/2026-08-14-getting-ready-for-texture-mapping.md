@@ -51,7 +51,7 @@ All that can be done in the pixel shader, as long as we have the following input
 * Position coordinates in model coordinate space $P_m$ — to pick the color from the color map;
 * Normal coordinates in world coordinate space $N_w$ — to calculate shading.
 
-For now, we are focusing on providing the values of $P_m$ to the pixel shader. We'll deal with the color map in the follow-up sessions.
+For now, our focus is on providing the values of $P_m$ to the pixel shader. We'll deal with the color map in the follow-up sessions.
 
 [prev-post]: {{site.baseurl}}/{% post_url 2026-08-08-starting-up %}
 [version-0-2]: https://github.com/tindandelion/mare-imbrium/tree/0.2.1

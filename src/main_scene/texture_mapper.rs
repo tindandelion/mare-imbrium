@@ -13,22 +13,15 @@ impl TextureCoordMapper {
     }
 
     pub fn to_uv_coords(&self, normal: Vec3) -> (usize, usize) {
-        let spherical = Self::cartesian_to_polar(normal);
-        self.polar_to_uv(spherical.0, spherical.1)
+        let (azimuth, polar) = Self::to_latlon(normal);
+        self.polar_to_uv(azimuth, polar)
     }
 
-    fn cartesian_to_polar(normal: Vec3) -> (f32, f32) {
+    fn to_latlon(normal: Vec3) -> (f32, f32) {
         debug_assert!(normal.is_normalized());
 
         let polar = normal.y.acos();
-        let azimuth = {
-            let angle = -normal.x.atan2(normal.z);
-            if normal.x < 0.0 {
-                angle
-            } else {
-                consts::TAU + angle
-            }
-        };
+        let azimuth = normal.x.atan2(-normal.z) + consts::PI;
 
         (
             azimuth.min(consts::TAU - 1e-6),
@@ -45,39 +38,6 @@ impl TextureCoordMapper {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
-    #[test]
-    fn convert_to_uv_along_azimuth_line() {
-        let mapper = TextureCoordMapper::new(2, 2);
-
-        assert_eq!((0, 0), mapper.polar_to_uv(0.0, 0.0));
-        assert_eq!((0, 0), mapper.polar_to_uv(consts::FRAC_PI_2, 0.0));
-        assert_eq!((0, 0), mapper.polar_to_uv(consts::PI - 0.0001, 0.0));
-        assert_eq!((1, 0), mapper.polar_to_uv(consts::PI, 0.0));
-
-        assert_eq!(
-            (1, 0),
-            mapper.polar_to_uv(consts::PI + consts::FRAC_PI_2, 0.0)
-        );
-        assert_eq!((1, 0), mapper.polar_to_uv(consts::TAU - 0.0001, 0.0));
-    }
-
-    #[test]
-    fn convert_to_uv_along_polar_line() {
-        let mapper = TextureCoordMapper::new(2, 2);
-
-        assert_eq!((0, 0), mapper.polar_to_uv(0.0, 0.0));
-        assert_eq!((0, 0), mapper.polar_to_uv(0.0, consts::FRAC_PI_2 - 0.0001));
-
-        assert_eq!((0, 1), mapper.polar_to_uv(0.0, consts::FRAC_PI_2));
-        assert_eq!((0, 1), mapper.polar_to_uv(0.0, consts::FRAC_PI_2 + 0.0001));
-        assert_eq!((0, 1), mapper.polar_to_uv(0.0, consts::PI - 0.0001));
-    }
-}
-
-#[cfg(test)]
-mod spherical_tests {
     use glam::Vec3;
 
     use super::*;

@@ -19,6 +19,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     display_in_terminal(&mut terminal, &framebuffer)?;
     let handle = thread::spawn(move || save_webp(&framebuffer).unwrap());
+
+    terminal.wait_for_key()?;
+    terminal.leave()?;
+
     println!("Saving webp...");
     handle.join().unwrap();
 
@@ -54,8 +58,6 @@ fn display_in_terminal(
 ) -> Result<(), Box<dyn std::error::Error>> {
     terminal.enter()?;
     terminal.display_rgb(framebuffer, framebuffer.width(), framebuffer.height())?;
-    terminal.wait_for_key()?;
-    terminal.leave()?;
     Ok(())
 }
 

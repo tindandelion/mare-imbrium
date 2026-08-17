@@ -6,15 +6,15 @@ use crate::{
 use glam::Vec3;
 use std::ops::{Add, Mul, Sub};
 
-use super::Texture;
+use super::ColorMap;
 
 pub struct LunarSurfaceShader<'a> {
     toward_sun: UnitVec3,
-    texture: &'a Texture,
+    texture: &'a ColorMap,
 }
 
 impl<'a> LunarSurfaceShader<'a> {
-    pub fn new(toward_sun: UnitVec3, texture: &'a Texture) -> Self {
+    pub fn new(toward_sun: UnitVec3, texture: &'a ColorMap) -> Self {
         Self {
             toward_sun,
             texture,

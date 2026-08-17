@@ -1,5 +1,5 @@
+mod color_map;
 mod shader;
-mod texture;
 mod texture_mapper;
 
 use crate::{
@@ -9,14 +9,14 @@ use crate::{
 };
 use glam::Mat4;
 
+pub use color_map::ColorMap;
 use shader::LunarSurfaceShader;
-pub use texture::Texture;
 
 pub struct Scene {
     pub sun_direction: UnitVec3,
     pub background: Rgb,
     posed_globe: PosedMesh,
-    texture: Texture,
+    texture: ColorMap,
 }
 
 impl Scene {
@@ -24,7 +24,7 @@ impl Scene {
     const TEXTURE_PATH: &str = "assets/lroc_color_16bit_srgb_4k.tif";
 
     pub fn new(sun_direction: UnitVec3) -> Self {
-        let texture = Texture::load_from_tif(Self::TEXTURE_PATH).expect("Failed to load texture");
+        let texture = ColorMap::load_from_tif(Self::TEXTURE_PATH).expect("Failed to load texture");
         Self {
             sun_direction,
             posed_globe: PosedMesh::new(sphere(Self::MESH_LOD), Mat4::IDENTITY),

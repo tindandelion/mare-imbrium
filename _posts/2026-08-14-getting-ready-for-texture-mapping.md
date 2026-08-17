@@ -43,7 +43,7 @@ To be more precise, we need to know the geographic coordinates $(lat, lon)$ to p
 In a nutshell, the algorithm for gluing the color map to the sphere looks like this:
 
 1. For each screen pixel, determine its coordinates $P_m = (x, y, z)$ in _model coordinate space_;
-2. Convert those coordinates from Cartesian to spherical $(lat, lon)$ and pick the corresponding pixel from the color map;
+2. Convert those coordinates from Cartesian to geographic $(lat, lon)$ and pick the corresponding pixel from the color map;
 3. Use that pixel's color as the base color and apply shading based on the surface normal in _world coordinate space_.
 
 All that can be done in the pixel shader, as long as we have the following input data for each pixel:
